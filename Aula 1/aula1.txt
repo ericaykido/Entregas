@@ -1,8 +1,11 @@
 Pesquisa 1
 Micro controladores revisão e conceitos
 
-Nome: Érica Yumi Kido – RA: 13.02422-0
-Engenharia de Computação – 4º ano Diurno
+Engenharia de Computação – 4º ano – Diurno
+
+Lucas G. Serrano – RA: 12.01328-5
+Flávia Janine Béo Rosante – RA: 13.03188-0
+Érica Yumi Kido – RA: 13.02422-0
 
 1)
 
@@ -15,7 +18,18 @@ O Watch Dog Timer é usado contra bugs e pode ser usado contra situações ambie
 
 2)
 
-b)	Pipeline é usado nos micro controladores PIC, e é uma técnica que divide a execução de instruções em partes e cada uma delas pode ser executada em paralelo.
+a.	O barramento AMBA é de um padrão aberto, o que torna capaz de uma maior compatibilidade e maior flexibilidade com barramentos periféricos. Sua função é fazer com que blocos interajam uns com os outros num System on chip.
+O barramento AMBA APB foi criado para controlar dispositivos periféricos e de baixo desempenho, apresenta baixo nível de consumo de energia e pouca largura de banda, normalmente é colocado como um escravo (slave) de outros barramentos.
+O barramento AMBA AHB possui múltiplos mestres de barramento, transferência burst, barramento de dados de maior largura, transações apenas em subida de clock e a utilização de pipeline.
+O barramento AMBA AXI possui alta frequência sem utilizar pontes complexas, realiza transações apenas com o endereço inicial emitido, separa a leitura e escrita dos canais de dados para possibilitar o baixo consumo da DMA.
+	Cada tipo de AMBA pode estar conectado através de pontes e cada um tem um funcionamento determinado, diferenciando-os em nível de desempenho.
+
+b.	Pipeline é usado nos micro controladores PIC, e é uma técnica que divide a execução de instruções em partes e cada uma delas pode ser executada em paralelo.
+
 3)
-a)	Pode-se medir o desempenho de um micro controlador a partir do tamanho da palavra, da velocidade do clock, tamanho do barramento de dados e dos periféricos internos.
-c)	As memórias existentes nos micro controladores são a memória RAM, que é dividida em duas SRAM e DRAM, sendo a primeira mais rápida e mais cara. A memória ROM, que retém os dados mesmo quando não estiver o micro controlador não estiver sendo alimentado eletricamente. A memória Flash, normalmente utilizada para gravar a programação do micro controlador, por causa da velocidade e armazenamento. A memória NVRAM, é idêntica à memória SRAM, mas possui alimentação interna. E a memória EEPROM, que é eletricamente apagável e programável.
+
+a. Pode-se medir o desempenho de um micro controlador a partir do tamanho da palavra, da velocidade do clock, tamanho do barramento de dados e dos periféricos internos.
+
+b.	Os modos de endereçamento de memória de micro controladores são endereçamento de registro, endereçamento imediato, endereçamento direto, endereçamento indireto de registro, endereçamento relativo de registro e endereçamento relativo de base+índice.
+
+c.	As memórias existentes nos micro controladores são a memória RAM, que é dividida em duas SRAM e DRAM, sendo a primeira mais rápida e mais cara. A memória ROM, que retém os dados mesmo quando não estiver o micro controlador não estiver sendo alimentado eletricamente. A memória Flash, normalmente utilizada para gravar a programação do micro controlador, por causa da velocidade e armazenamento. A memória NVRAM, é idêntica à memória SRAM, mas possui alimentação interna. E a memória EEPROM, que é eletricamente apagável e programável.
