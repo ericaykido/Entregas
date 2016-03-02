@@ -1,0 +1,21 @@
+Pesquisa 1
+Micro controladores revisão e conceitos
+
+Nome: Érica Yumi Kido – RA: 13.02422-0
+Engenharia de Computação – 4º ano Diurno
+
+1)
+
+a.	Sistema repositório de software é o armazenamento dos pacotes de softwares que podem ser recuperados e instalados num computador. Funciona registrando-se as mudanças feitas num software para que, se necessário, possa-se recuperar versões específicas dele, ele permite reverter arquivos para um estado anterior, comparar mudanças feitas ao longo do tempo, ver quem foi o último a modificar algo.
+
+b.	Os principais fabricantes de micro controladores são a Mitsubishi Eletric, Atmel Corporation, Freescale Semiconductor, Texas Instruments, Zilog Inc., Motorola e Intel.
+
+c.	Os principais periféricos existentes nos micro controladores são o Watchdog, oscilador interno, brown-out, captura de sinais/largura de pulso, timers, pwm, USART e detector de condições ilegias.
+O Watch Dog Timer é usado contra bugs e pode ser usado contra situações ambientais agressivas, onde ele reseta o micro controlador. Ele usa a aplicação do micro controlador de reinicialização do sistema, onde ele tem um clock independente e se o WDT não for zerado pelo programa antes da contagem chegar a zero o micro controlador é resetado.
+
+2)
+
+b)	Pipeline é usado nos micro controladores PIC, e é uma técnica que divide a execução de instruções em partes e cada uma delas pode ser executada em paralelo.
+3)
+a)	Pode-se medir o desempenho de um micro controlador a partir do tamanho da palavra, da velocidade do clock, tamanho do barramento de dados e dos periféricos internos.
+c)	As memórias existentes nos micro controladores são a memória RAM, que é dividida em duas SRAM e DRAM, sendo a primeira mais rápida e mais cara. A memória ROM, que retém os dados mesmo quando não estiver o micro controlador não estiver sendo alimentado eletricamente. A memória Flash, normalmente utilizada para gravar a programação do micro controlador, por causa da velocidade e armazenamento. A memória NVRAM, é idêntica à memória SRAM, mas possui alimentação interna. E a memória EEPROM, que é eletricamente apagável e programável.
