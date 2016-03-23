@@ -1,0 +1,76 @@
+\documentclass{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage[portuges,brazilian]{babel}
+
+
+\usepackage{enumitem, kantlipsum}
+
+\setlist{  
+  listparindent=\parindent, 
+  parsep=0pt, 
+  labelsep=2em, 
+  itemindent=\parindent, }
+  
+\author{Lucas Gonçalves Serrano - RA: 12.01328-5 \and Flávia Janine Béo Rosante - RA: 13.03188-0 \and Erica Yumi Kido - RA: 13.02422-0}
+
+\begin{document}
+
+\date{\today}
+
+\title{Periféricos PIO}
+
+\maketitle
+
+\section{Periféricos - Secção 11 datasheet}
+\textbf{1 - Periféricos:}
+\begin{itemize}
+\item O RTC tem como funcionalidades a disponibilização relógio, onde informa o horário, a disponibilidade de calendário, onde informa o tempo, a possibilidade de definição de alarmes, a possibilidade de sinalização de eventos ao processador recorrendo a interrupção, sejam elas sinalizações de segurança ou programadas, a oscilação de clock calibrada a partir do cristal, a geração de waveforms e não permite o funcionamento autônomo.
+\item As funcionalidades do TC Timer/Counter são contagem de frequência, contagem de eventos, contagem de intervalos, geração de pulsos, atraso de clock e modulação do tamanho do pulso.
+\end{itemize}
+\textbf{1 - Periféricos:} 
+\begin{enumerate} 
+\item \textbf{PIOA:} \\ 0x400E0E00 até 0x400E1000
+\item \textbf{PIOB:} \\ 0x400E1000 até 0x400E1200
+\item \textbf{ACC:} \\ 0x40040000 até 0x40044000
+\item \textbf{UART1:} \\ 0x400E0600 até 0x400E0740
+\item \textbf{UART2:} \\ 0x400E0800 até 0x400E0A00
+\end{enumerate}
+\section{PIO - Secção 31 datasheet}
+\textbf{1 - I/O pinos}
+\begin{itemize}
+\item PA01: \\
+Não está associado a nenhum pino, faz parte do controle de touch.
+\item PB22: \\
+Não existe.
+\item PC12: \\
+Pino 29.
+\end{itemize}
+\textbf{1 - PIO periféricos}
+\begin{itemize}
+\item PC20: \\
+A2, PWMH2.
+\item PB3: \\
+UTXD1, PCK2.
+\end{itemize}
+\subsection{Configurações}
+\textbf{Debouncing:}
+\begin{itemize}
+\item Debouncing no PIO é um filtro para proteger a aplicação de pulsos indesejáveis de operações de chave ou botão pressionado. O filtro de debouncing pode filtrar pulsos até meio período do "clock lento".
+\item Algorítimo: \\
+PIO\_IFSCSR\_P1 = 1 \\
+Esse fará com que o filtro ocorra no P1.
+\end{itemize}
+\subsection{Funcionalidade}
+\subsection{SET/Clear}
+\textbf{Race condicions}
+\begin{itemize}
+\item S\~ao falhas no sistema que ocorrem quando o resultado de um processo depende da sequ\^encia ou sincronia de outros eventos.
+\item A sincronizaç\~ao feita com o Output Data Status Register PIO\_ODSR que determina se o set ou o clear que ser\'a setado faz com que n\~ao haja conflitos de eventos.
+\end{itemize}
+\subsection{Configurando um pino em modo de output}
+\textbf{Configurando um pino em modo saída}
+\begin{itemize}
+\item A configuraç\~ao do pino output começa quando o PIO\_PSR \'e setado em zero, o que faz com que o I/O seja controlado pelo perif\'erico. Com o PIO\_OER o pino em que o perif\'erico est\'a pode ser configurado e o resultado vai para o registrador de estatus do output PIO\_OSR. Este quando em zero, significa que o I/O est\'a dispon\'ivel s\'o para input, e quando em 1 o PIO estar\'a no controle do I/O. Os dados que passar\~ao no I/O ser\~ao setados pelos PIO\_SODR e PIO\_CODR. O resultado deles vai para o registrador de status dos dados do output PIO\_ODSR.
+\end{itemize}
+\end{document}
