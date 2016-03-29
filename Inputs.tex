@@ -1,8 +1,7 @@
 \documentclass{article}
 
 \usepackage[latin1]{inputenc}
-\usepackage[portugues,brazilian]{babel}
-
+\usepackage[portuges,brazilian]{babel}
 
 \usepackage{enumitem, kantlipsum}
 
@@ -12,31 +11,32 @@
 	labelsep=2em, 
 	itemindent=\parindent }
 
+\author{Lucas Gonçalves Serrano - RA: 12.01328-5 \and Flávia Janine Béo Rosante - RA: 13.03188-0 \and Erica Yumi Kido - RA: 13.02422-0}
 
 \begin{document}
-	\title{PIO\\
-		Entradas e Driver}
-\author{Lucas GonÃ§alves Serrano - RA: 12.01328-5 \and FlÃ¡via Janine BÃ©o Rosante - RA: 13.03188-0 \and Erica Yumi Kido - RA: 13.02422-0}
-	\maketitle
+\date{\today}
+\title{PIO\\Entradas e Driver}
+
+\maketitle
 
 	\section{Input}
 	\textbf{1 - Entrada Digital}
 	
-	O sinal elÃ©trico chamado de "on-off" que ao se medir um sensor sÃ³ existe dois tipos de informaÃ§Ãµes, por exemplo, 0V ou 12V, ou seja, ligado ou desligado.
+	O sinal elétrico chamado de "on-off" que ao se medir um sensor só existe dois tipos de informações, por exemplo, 0V ou 12V, ou seja, ligado ou desligado.
 	
 	\subsection{Pull-UP / Pull-Down}
 	\textbf{2 - Valores resistores} 
 	
-	O Pull-Up tem uma resistÃªncia mÃ­nima de 70 KOhms e mÃ¡xima de 130 KOhms. Assim como o Pull-Down
+	O Pull-Up tem uma resistência mínima de 70 KOhms e máxima de 130 KOhms. Assim como o Pull-Down
 	
 	\subsection{Deboucing + Glitch}
 	\textbf{3 - Divisor de Clock}\\
-	\textbf{4 - InterpretaÃ§Ã£o carta de tempo}
-	
-	\subsection{ProgramaÃ§Ã£o}
-	\textbf{5 - While(1)}
-	
+	\textbf{4 - Interpretação carta de tempo}
+	\subsection{Programação}
+	\textbf{5 - While(1)}\\
+	Uma possibilidade para não necessitar a checagem do status do botão repetidamente seria utilizar uma função chamada quando o botão é pressionado, mudando uma variável do sistema que essa em si seria checada.
 	\section{Driver}
 	\subsection{PMC}
-	\textbf{6 - Include}
+	\textbf{6 - Include} \\
+	O include com "" é utilizado para bibliotecas geralmente na pasta do projeto em si, são normalmente bibliotecas feitas pelo usuário, já com < > é utilizados para bibliotecas do sistema, o pré-compilador as procura em pastas pré determinadas, onde estão as bibliotecas mais comumente usadas (como em nossos projetos a biblioteca \textbf{asf.h}).
 \end{document}
