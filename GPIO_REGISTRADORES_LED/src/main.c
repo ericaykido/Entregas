@@ -77,9 +77,9 @@ int main (void)
 	_pmc_enable_clock_periferico(ID_PIOC);
 	_pmc_enable_clock_periferico(ID_PIOB);
 	
-	_pio_set_output(PIOA, PIN_LED_BLUE,1,0);
-	_pio_set_output(PIOA, PIN_LED_GREEN,1,0);
-	_pio_set_output(PIOC, PIN_LED_RED,1,0);
+	_pio_set_output(PIOA, (1 << PIN_LED_BLUE),1,0);
+	_pio_set_output(PIOA, (1 << PIN_LED_GREEN),1,0);
+	_pio_set_output(PIOC, (1 << PIN_LED_RED),1,0);
 	 //31.6.1 PIO Enable Register
 	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).	
 	

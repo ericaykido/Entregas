@@ -4,46 +4,68 @@
 void _pio_set_output( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_default_level, const uint32_t ul_pull_up_enable){
 	//31.6.1 PIO Enable Register
 	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).
-	p_pio->PIO_PER |= ul_default_level << ul_mask;
+	p_pio->PIO_PER |= ul_mask;
 	
 	// 31.6.46 PIO Write Protection Mode Register
 	// 0: Disables the write protection if WPKEY corresponds to 0x50494F (PIO in ASCII).
 	p_pio->PIO_WPMR = 0;
 	
-	// 31.6.4 PIO Output Enable Register
-	// 1: Enables the output on the I/O line.
-	p_pio->PIO_OER |= ul_default_level << ul_mask;
+	
 	
 	if (ul_pull_up_enable == 1)
 	{
 		_pio_pull_up(p_pio,ul_mask, ul_pull_up_enable);
 	}
+	
+	if (ul_default_level == 1)
+	{
+	_pio_set(p_pio, ul_mask);
+	}
+		else
+		{
+			_pio_clear(p_pio, ul_mask);
+		}
+		
+		// 31.6.4 PIO Output Enable Register
+		// 1: Enables the output on the I/O line.
+		p_pio->PIO_OER |= ul_mask;
+
 }
 
 void _pio_set_input( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_attribute) {
 	//31.6.1 PIO Enable Register
 	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).
-	p_pio->PIO_PER |= ul_attribute << ul_mask;
+	p_pio->PIO_PER |= ul_mask;
 	
 	// 31.6.46 PIO Write Protection Mode Register
 	// 0: Disables the write protection if WPKEY corresponds to 0x50494F (PIO in ASCII).
 	p_pio->PIO_WPMR = 0;
 	
+	_pio_pull_up(p_pio,ul_mask, ul_attribute & PIO_PULLUP);
+	
+	if (ul_attribute & (PIO_DEGLITCH | PIO_DEBOUNCE))
+	{
+		p_pio->PIO_IFER = ul_mask;
+	} else {
+		p_pio->PIO_IFDR = ul_mask;
+	}
 	// 31.6.4 PIO Output Enable Register
 	// 1: Enables the output on the I/O line.
-	p_pio->PIO_OER |= ul_attribute << ul_mask;
-	
-	if (ul_attribute == 1)
-	{
-		_pio_pull_up(p_pio,ul_mask, ul_attribute);
-	}	
+	p_pio->PIO_OER |= ul_mask;	
 }
 
 void _pio_pull_up(	Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_pull_up_enable) {
-	p_pio->PIO_PUER = ul_pull_up_enable << ul_mask;
+	
+	if (ul_pull_up_enable == 1)
+	{
+		p_pio->PIO_PUER = ul_mask;
+	}
 }
 void _pio_pull_down( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_pull_down_enable){
-	p_pio->PIO_PPDER = ul_pull_down_enable << ul_mask;
+	if (ul_pull_down_enable == 1)
+	{
+		p_pio->PIO_PPDER = ul_mask;
+	}
 }
 void _pio_set( Pio *p_pio, const uint32_t ul_mask) {
 	p_pio->PIO_SODR = ul_mask;
