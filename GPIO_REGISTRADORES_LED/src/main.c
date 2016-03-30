@@ -8,13 +8,12 @@
 */
 
 #include <asf.h>
+#include "Driver/pio_maua.h"
+#include "Driver/pmc_maua.h"
 
 /*
  * Prototypes
  */
-
-void config_pin_output(Pio *PIO, int ID_pio, int pinos);
-void config_pin_input(Pio *PIO, int ID_pio, int pinos);
 
 /** 
  * Definição dos pinos
@@ -48,8 +47,6 @@ void config_pin_input(Pio *PIO, int ID_pio, int pinos);
 #define PORT_LED_RED PIOC
 #define PORT_BUTTON PIOB
 
-volatile int *botao = 0x400E103C;
-	volatile int tmp;
 
 /**
  * Main function
@@ -76,10 +73,13 @@ int main (void)
 	WDT->WDT_MR = WDT_MR_WDDIS;
 		
 
-	config_pin_output(PIOA, ID_PIOA, 1 << PIN_LED_BLUE );
-	config_pin_output(PIOA, ID_PIOA, 1 << PIN_LED_GREEN );
-	config_pin_output(PIOC, ID_PIOC, 1 << PIN_LED_RED );
-
+	_pmc_enable_clock_periferico(ID_PIOA);
+	_pmc_enable_clock_periferico(ID_PIOC);
+	_pmc_enable_clock_periferico(ID_PIOB);
+	
+	_pio_set_output(PIOA, PIN_LED_BLUE,1,0);
+	_pio_set_output(PIOA, PIN_LED_GREEN,1,0);
+	_pio_set_output(PIOC, PIN_LED_RED,1,0);
 	 //31.6.1 PIO Enable Register
 	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).	
 	
@@ -90,12 +90,8 @@ int main (void)
 	//PIOA->PIO_SODR = (0 << PIN_LED_BLUE );
 	PIOC->PIO_SODR = (1 << PIN_LED_RED);
 
+	config_pin_input(PIOB, 1 << PIN_BUTTON);
 
-	config_pin_input(PIOB, ID_PIOB, 1 << PIN_BUTTON);
-	
-	
-	
-	
 	/**
 	*	Loop infinito
 	*/
@@ -110,79 +106,32 @@ int main (void)
 			Estamos setando os dois pinos set e clear em nível alto, com o delay de 1000 segundos.
 			*/
 
-		
-			tmp = *botao;
-			
-			if (((PIOB->PIO_PDSR >> 3) & 1 ) == 0) {
-			//if (((*botao >> 3)&0x00000001) == 0) {
-				PIOC->PIO_SODR = (1 << PIN_LED_RED );
+				
+			//if (((PIOB->PIO_PDSR >> 3) & 1 ) == 0) {
+			if (_pio_get_output_data_status(PIOB, PIN_BUTTON) == 0) {
+				_pio_set(PIOC, PORT_LED_RED);
+				//PIOC->PIO_SODR = (1 << PIN_LED_RED );
 				delay_ms(time);
+				//_pio_clear(PIOA, PORT_LED_BLUE);
 				PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
 				delay_ms(time);
+				//_pio_clear(PIOA, PORT_LED_GREEN);
 				PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
 				delay_ms(time);
+				//_pio_clear(PIOC, PORT_LED_RED);
 				PIOC->PIO_CODR = (1 << PIN_LED_RED );
 				delay_ms(time);
+				//_pio_set(PIOA, PORT_LED_BLUE);
 				PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 				delay_ms(time);
+				//_pio_set(PIOA, PORT_LED_GREEN);
 				PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 				delay_ms(time);
-			}
-			else{
+			} else {
 				PIOC->PIO_CODR = (1 << PIN_LED_RED );
 				PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
 				PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
 				
 			}
 	}
-}
-
-void set_pin_level(Pio *PIO, int pino, int level){
-	
-	
-}
-
-void config_pin_output(Pio *PIO, int ID_pio, int pinos){
-		// 29.17.4 PMC Peripheral Clock Enable Register 0
-		// 1: Enables the corresponding peripheral clock.
-		// ID_PIOA = 11 - TAB 11-1
-		PMC->PMC_PCER0 |= 1 << ID_pio;
-	
-	   //31.6.1 PIO Enable Register
-	   // 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).
-		PIO->PIO_PER |= pinos;
-		
-		// 31.6.46 PIO Write Protection Mode Register
-		// 0: Disables the write protection if WPKEY corresponds to 0x50494F (PIO in ASCII).
-		PIO->PIO_WPMR = 0;
-		
-		// 31.6.4 PIO Output Enable Register
-		// 1: Enables the output on the I/O line.
-		PIO->PIO_OER |= pinos;
-		
-}
-
-void config_pin_input(Pio *PIO, int ID_pio, int pinos){
-	// 29.17.4 PMC Peripheral Clock Enable Register 0
-	// 1: Enables the corresponding peripheral clock.
-	// ID_PIOA = 11 - TAB 11-1
-	PMC->PMC_PCER0 |= 1<<ID_pio;
-	
-	//31.6.1 PIO Enable Register
-	// 1: Enables the PIO to control the corresponding pin (disables peripheral control of the pin).
-	PIO->PIO_PER = pinos;
-	
-	// 31.6.46 PIO Write Protection Mode Register
-	// 0: Disables the write protection if WPKEY corresponds to 0x50494F (PIO in ASCII).
-	PIO->PIO_WPMR = 0;
-	
-	// 31.6.4 PIO Output Disable Register
-	// 1: Disable the output on the I/O line.
-	PIO->PIO_ODR = pinos;
-	
-	// Enable pull-up
-	PIO->PIO_PUER = pinos;
-	
-	// Ativando o Debouncing
-	PIO->PIO_IFSCER = pinos;
 }

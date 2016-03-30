@@ -11,7 +11,7 @@
 /*****************
  * Includes
  *****************/
-
+#include <asf.h>
 
 /***************** 
  * Defines
@@ -134,5 +134,7 @@ void _pio_clear( Pio *p_pio,
  */
 uint32_t _pio_get_output_data_status(const Pio *p_pio,
                         	    	 const uint32_t ul_mask);
+
+void config_pin_input(Pio *PIO, int pinos);
 
 #endif /* _PIO_MAUA_H */
