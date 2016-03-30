@@ -46,10 +46,10 @@ void _pio_pull_down( Pio *p_pio, const uint32_t ul_mask, const uint32_t ul_pull_
 	p_pio->PIO_PPDER = ul_pull_down_enable << ul_mask;
 }
 void _pio_set( Pio *p_pio, const uint32_t ul_mask) {
-	p_pio->PIO_SODR = (1 << ul_mask );
+	p_pio->PIO_SODR = ul_mask;
 }
 void _pio_clear( Pio *p_pio, const uint32_t ul_mask) {
-	p_pio->PIO_CODR = (1 << ul_mask );
+	p_pio->PIO_CODR = ul_mask;
 }
 
 uint32_t _pio_get_output_data_status(const Pio *p_pio, const uint32_t ul_mask) {

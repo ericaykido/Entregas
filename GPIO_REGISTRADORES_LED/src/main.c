@@ -109,28 +109,28 @@ int main (void)
 				
 			//if (((PIOB->PIO_PDSR >> 3) & 1 ) == 0) {
 			if (_pio_get_output_data_status(PIOB, PIN_BUTTON) == 0) {
-				_pio_set(PIOC, PORT_LED_RED);
-				//PIOC->PIO_SODR = (1 << PIN_LED_RED );
+				_pio_set(PIOC, (1 << PIN_LED_RED ));
+				
 				delay_ms(time);
-				//_pio_clear(PIOA, PORT_LED_BLUE);
-				PIOA->PIO_CODR = (1 << PIN_LED_BLUE );
+				_pio_clear(PIOA, (1 << PIN_LED_BLUE));
+				
 				delay_ms(time);
-				//_pio_clear(PIOA, PORT_LED_GREEN);
-				PIOA->PIO_CODR = (1 << PIN_LED_GREEN );
+			    _pio_clear(PIOA, (1 << PIN_LED_GREEN ));
+				
 				delay_ms(time);
-				//_pio_clear(PIOC, PORT_LED_RED);
-				PIOC->PIO_CODR = (1 << PIN_LED_RED );
+				_pio_clear(PIOC, (1 << PIN_LED_RED ));
+				
 				delay_ms(time);
-				//_pio_set(PIOA, PORT_LED_BLUE);
-				PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
+				_pio_set(PIOA, (1 << PIN_LED_BLUE ));
+				
 				delay_ms(time);
-				//_pio_set(PIOA, PORT_LED_GREEN);
-				PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
+				_pio_set(PIOA, (1 << PIN_LED_GREEN ));
+				
 				delay_ms(time);
 			} else {
-				PIOC->PIO_CODR = (1 << PIN_LED_RED );
-				PIOA->PIO_SODR = (1 << PIN_LED_BLUE );
-				PIOA->PIO_SODR = (1 << PIN_LED_GREEN );
+				_pio_clear(PIOC, (1 << PIN_LED_RED ));
+				_pio_set(PIOA, (1 << PIN_LED_BLUE ));
+				_pio_set(PIOA, (1 << PIN_LED_GREEN ));
 				
 			}
 	}
