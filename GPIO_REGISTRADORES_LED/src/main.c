@@ -88,14 +88,14 @@ int main (void)
 	// 31.6.10 PIO Set Output Data Register
 	// 1: Sets the data to be driven on the I/O line.
 	//PIOA->PIO_SODR = (0 << PIN_LED_BLUE );
-	PIOC->PIO_SODR = (1 << PIN_LED_RED);
+	//PIOC->PIO_SODR = (1 << PIN_LED_RED);
 
 	config_pin_input(PIOB, 1 << PIN_BUTTON);
 
 	/**
 	*	Loop infinito
 	*/
-	
+	Byte arr[] = {0x04, 0x02, 0x01, 0x00};
 		while(1){
 
             /*
@@ -105,9 +105,32 @@ int main (void)
 			/* 
 			Estamos setando os dois pinos set e clear em nível alto, com o delay de 1000 segundos.
 			*/
-
-				
-			//if (((PIOB->PIO_PDSR >> 3) & 1 ) == 0) {
+			
+			if (_pio_get_output_data_status(PIOB, PIN_BUTTON) == 0) {
+				for (int i = 0; i < sizeof(arr); i++) {
+					if (((arr[i] >> 0) & 1) == 1 ) {
+						_pio_clear(PIOA, (1 << PIN_LED_BLUE));
+					} else {
+						_pio_set(PIOA, (1 << PIN_LED_BLUE));
+					}
+					if (((arr[i] >> 1) & 1) == 1 ) {
+						_pio_clear(PIOA, (1 << PIN_LED_GREEN));
+					} else {
+						_pio_set(PIOA, (1 << PIN_LED_GREEN));
+					}
+					if (((arr[i] >> 2) & 1) == 1 ) {
+						_pio_set(PIOC, (1 << PIN_LED_RED));
+					} else {
+						_pio_clear(PIOC, (1 << PIN_LED_RED));
+					}
+					delay_ms(time*4);	
+				} 
+			} else {
+			_pio_clear(PIOC, (1 << PIN_LED_RED ));
+			_pio_set(PIOA, (1 << PIN_LED_BLUE ));
+			_pio_set(PIOA, (1 << PIN_LED_GREEN ));
+		}
+			/*
 			if (_pio_get_output_data_status(PIOB, PIN_BUTTON) == 0) {
 				_pio_set(PIOC, (1 << PIN_LED_RED ));
 				
@@ -131,7 +154,7 @@ int main (void)
 				_pio_clear(PIOC, (1 << PIN_LED_RED ));
 				_pio_set(PIOA, (1 << PIN_LED_BLUE ));
 				_pio_set(PIOA, (1 << PIN_LED_GREEN ));
-				
 			}
+			*/
 	}
 }
