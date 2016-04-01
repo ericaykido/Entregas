@@ -30,12 +30,14 @@
 	O Pull-Up tem uma resistência mínima de 70 KOhms e máxima de 130 KOhms. Assim como o Pull-Down
 	
 	\subsection{Deboucing + Glitch}
-	\textbf{3 - Divisor de Clock}\\
-	\textbf{4 - Interpretação carta de tempo}
+	\textbf{3 - Divisor de Clock}\\ 
+	Este registrador aceita um valor de 2\textsuperscript{14}. \ \\
+	\textbf{4 - Interpretação carta de tempo}\\ 
+	O Debouncing e o Glitch são utilizados para desconsiderar qualquer oscilação na onda de input do botão que não represente uma pressionada real do botão.
 	\subsection{Programação}
 	\textbf{5 - While(1)}\\
 	Uma possibilidade para não necessitar a checagem do status do botão repetidamente seria utilizar uma função chamada quando o botão é pressionado, mudando uma variável do sistema que essa em si seria checada.
-	\section{Driver}
+	\section{Driver} 
 	\subsection{PMC}
 	\textbf{6 - Include} \\
 	O include com "" é utilizado para bibliotecas geralmente na pasta do projeto em si, são normalmente bibliotecas feitas pelo usuário, já com < > é utilizados para bibliotecas do sistema, o pré-compilador as procura em pastas pré determinadas, onde estão as bibliotecas mais comumente usadas (como em nossos projetos a biblioteca \textbf{asf.h}).
