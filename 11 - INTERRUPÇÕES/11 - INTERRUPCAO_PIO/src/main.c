@@ -157,6 +157,7 @@ int main (void)
 		delay_ms(500);
 		pio_clear(PIOA, (1 << PIN_LED_BLUE));
 		delay_ms(500);
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }
 
