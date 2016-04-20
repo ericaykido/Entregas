@@ -62,7 +62,7 @@ static void push_button_handle(uint32_t id, uint32_t mask);
 #define MASK_LED_BLUE	(1u << PIN_LED_BLUE)
 #define MASK_LED_GREEN	(1u << PIN_LED_GREEN)
 #define MASK_LED_RED	(1u << PIN_LED_RED)
-#define MASK_BUT_2		(1u << PORT_BUT_2)
+#define MASK_BUT_2		(1u << PIN_BUTTON)
 
 /************************************************************************/
 /*  INTERRUPÇÃO PORTB													*/
@@ -123,17 +123,12 @@ int main (void)
 	/*
 	 * Configura divisor do clock para debounce
 	 */
-	//pio_set_debounce_filter(???, ???, ???);
+	pio_set_debounce_filter(PIN_BUTTON, MASK_BUT_2, 10);
 	
 	/* 
 	*	Configura interrupção para acontecer em borda de descida.
 	*/
-	//pio_handler_set(???, 
-	//				???,
-	//				???,  
-	//				???,
-	//				???);
-				
+	pio_handler_set(PIN_BUTTON, ID_BUT_2, MASK_BUT_2, PIO_IT_FALL_EDGE, push_button_handle(ID_BUT_2, MASK_BUT_2));
 	/*
 	*	Ativa interrupção no periférico B porta do botão
 	*/	
