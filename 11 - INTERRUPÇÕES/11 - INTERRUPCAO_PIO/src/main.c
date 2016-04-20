@@ -128,11 +128,12 @@ int main (void)
 	/* 
 	*	Configura interrupção para acontecer em borda de descida.
 	*/
-	pio_handler_set(PIN_BUTTON, ID_BUT_2, MASK_BUT_2, PIO_IT_FALL_EDGE, push_button_handle(ID_BUT_2, MASK_BUT_2));
+	pio_handler_set(PIN_BUTTON, ID_BUT_2, MASK_BUT_2, PIO_IT_FALL_EDGE, push_button_handle);
+	
 	/*
 	*	Ativa interrupção no periférico B porta do botão
 	*/	
-	//pio_enable_interrupt(???,??? );
+	pio_enable_interrupt(PIN_BUTTON, MASK_BUT_2);
 	
 	/*
 	*	Configura a prioridade da interrupção no pORTB
