@@ -69,7 +69,11 @@ static void push_button_handle(uint32_t id, uint32_t mask);
 /************************************************************************/
 
 static void push_button_handle(uint32_t id, uint32_t mask){
-	pio_clear(PIOA, (1 << PIN_LED_GREEN));
+	if (pio_get_output_data_status(PORT_LED_GREEN, MASK_LED_GREEN) == 0) {
+		pio_set(PORT_LED_GREEN, MASK_LED_GREEN);
+	} else {
+		pio_clear(PORT_LED_GREEN, MASK_LED_GREEN);
+	}
 }
 
 
@@ -123,27 +127,27 @@ int main (void)
 	/*
 	 * Configura divisor do clock para debounce
 	 */
-	pio_set_debounce_filter(PIN_BUTTON, MASK_BUT_2, 10);
+	pio_set_debounce_filter(PORT_BUT_2, MASK_BUT_2, 10);
 	
 	/* 
 	*	Configura interrupção para acontecer em borda de descida.
 	*/
-	pio_handler_set(PIN_BUTTON, ID_BUT_2, MASK_BUT_2, PIO_IT_FALL_EDGE, push_button_handle);
+	pio_handler_set(PORT_BUT_2, ID_BUT_2, MASK_BUT_2, PIO_IT_FALL_EDGE | PIO_PULLUP, push_button_handle);
 	
 	/*
 	*	Ativa interrupção no periférico B porta do botão
 	*/	
-	pio_enable_interrupt(PIN_BUTTON, MASK_BUT_2);
+	pio_enable_interrupt(PORT_BUT_2, MASK_BUT_2);
 	
 	/*
 	*	Configura a prioridade da interrupção no pORTB
 	*/
-	//NVIC_SetPriority((IRQn_Type), ??? );
+	NVIC_SetPriority((IRQn_Type) ID_BUT_2, 0);
 	
 	/*
 	*	Ativa interrupção no port B
 	*/
-	//NVIC_EnableIRQ((IRQn_Type) ???);
+	NVIC_EnableIRQ((IRQn_Type) ID_BUT_2);
 	
 	/**
 	*	Loop infinito
