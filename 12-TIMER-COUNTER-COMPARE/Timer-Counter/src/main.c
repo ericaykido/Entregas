@@ -18,6 +18,41 @@
 
 #include "asf.h"
 
+#define PIN_LED_BLUE	19
+#define PIN_LED_RED		20
+#define PIN_LED_GREEN	20
+#define PIN_BUTTON		3
+#define PIN_BUTTON_2	12
+#define time			100
+
+/** 
+ * Definição dos ports
+ * Ports referentes a cada pino
+ */
+#define PORT_LED_BLUE	PIOA
+#define PORT_LED_GREEN	PIOA
+#define PORT_LED_RED	PIOC
+#define PORT_BUT_1		PIOB
+#define PORT_BUT_2		PIOC
+
+/**
+ * Define os IDs dos periféricos associados aos pinos
+ */
+#define ID_LED_BLUE		ID_PIOA
+#define ID_LED_GREEN	ID_PIOA
+#define ID_LED_RED		ID_PIOC
+#define ID_BUT_2		ID_PIOC
+#define ID_BUT_1		ID_PIOB
+
+/**
+ *	Define as masks utilziadas
+ */
+#define MASK_LED_BLUE	(1u << PIN_LED_BLUE)
+#define MASK_LED_GREEN	(1u << PIN_LED_GREEN)
+#define MASK_LED_RED	(1u << PIN_LED_RED)
+#define MASK_BUT_1		(1u << PIN_BUTTON)
+#define MASK_BUT_2		(1u << PIN_BUTTON_2)
+
 #define PIN_PUSHBUTTON_1_MASK	PIO_PB3
 #define PIN_PUSHBUTTON_1_PIO	PIOB
 #define PIN_PUSHBUTTON_1_ID		ID_PIOB
@@ -40,7 +75,7 @@
  */
 static void Button1_Handler(uint32_t id, uint32_t mask)
 {
-	
+	tc_write_rc(TC0,0,tc_read_rc(TC0,0)*3/2);
 }
 
 /**
@@ -48,7 +83,7 @@ static void Button1_Handler(uint32_t id, uint32_t mask)
  */
 static void Button2_Handler(uint32_t id, uint32_t mask)
 {
-	
+	tc_write_rc(TC0,0,tc_read_rc(TC0,0)*2/3);
 }
 
 /**
@@ -59,13 +94,17 @@ void TC0_Handler(void)
 	volatile uint32_t ul_dummy;
 
 	/* Clear status bit to acknowledge interrupt */
-	//ul_dummy = tc_get_status();
+	ul_dummy = tc_get_status(TC0,0);
 
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
 
 	/** Muda o estado do LED */
-
+	if (pio_get_output_data_status(PORT_LED_GREEN, MASK_LED_GREEN) == 0) {
+		pio_set(PORT_LED_GREEN, MASK_LED_GREEN);
+		} else {
+		pio_clear(PORT_LED_GREEN, MASK_LED_GREEN);
+	}
 }
 
 /**
@@ -76,9 +115,27 @@ void TC0_Handler(void)
  */
 static void configure_buttons(void)
 {
+	pmc_enable_periph_clk(PIN_PUSHBUTTON_1_ID);
+	pmc_enable_periph_clk(PIN_PUSHBUTTON_2_ID);
+	
+	pio_set_input(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+	pio_set_input(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_MASK, PIO_PULLUP | PIO_DEBOUNCE);
 
+	pio_set_debounce_filter(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK, 10);
+	pio_set_debounce_filter(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_MASK, 10);
+	
+	pio_handler_set(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_ID, PIN_PUSHBUTTON_1_MASK, PIO_IT_FALL_EDGE | PIO_PULLUP, Button1_Handler);
+	pio_handler_set(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_ID, PIN_PUSHBUTTON_2_MASK, PIO_IT_FALL_EDGE | PIO_PULLUP, Button2_Handler);
+	
+	pio_enable_interrupt(PIN_PUSHBUTTON_1_PIO, PIN_PUSHBUTTON_1_MASK);
+	pio_enable_interrupt(PIN_PUSHBUTTON_2_PIO, PIN_PUSHBUTTON_2_MASK);
+
+	NVIC_SetPriority((IRQn_Type) PIN_PUSHBUTTON_1_ID, 0);
+	NVIC_SetPriority((IRQn_Type) PIN_PUSHBUTTON_2_ID, 0);
+	
+	NVIC_EnableIRQ((IRQn_Type) PIN_PUSHBUTTON_1_ID);
+	NVIC_EnableIRQ((IRQn_Type) PIN_PUSHBUTTON_2_ID);
 }
-
 
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
@@ -97,7 +154,7 @@ static void configure_tc(void)
 	*	Ativa o clock do periférico TC 0
 	* 
 	*/
-	//pmc_enable_periph_clk();
+	pmc_enable_periph_clk(ID_TC0);
 
 	/*
 	* Configura TC para operar no modo de comparação e trigger RC
@@ -123,7 +180,7 @@ static void configure_tc(void)
 	* Uma opção para achar o valor do divisor é utilizar a funcao
 	* tc_find_mck_divisor()
 	*/
-	//tc_init();
+	tc_init(TC0,0,TC_CMR_CPCTRG | TC_CMR_TCCLKS_TIMER_CLOCK5);
 	
 	/*
 	* Aqui devemos configurar o valor do RC que vai trigar o reinicio da contagem
@@ -144,12 +201,12 @@ static void configure_tc(void)
 	*
 	*
 	*/
-	//tc_write_rc();
+	tc_write_rc(TC0,0,8192);
 	
 	/*
 	* Devemos configurar o NVIC para receber interrupções do TC 
 	*/
-	//NVIC_EnableIRQ();
+	NVIC_EnableIRQ((IRQn_Type) ID_TC0);
 	
 	/*
 	* Opções possíveis geradoras de interrupção :
@@ -165,7 +222,9 @@ static void configure_tc(void)
 	*	#define TC_IER_LDRBS (0x1u << 6)	RB Loading 
 	*	#define TC_IER_ETRGS (0x1u << 7)	External Trigger 
 	*/
-	//tc_enable_interrupt();
+	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
+	
+	tc_start(TC0, 0);
 }
 
 
@@ -173,7 +232,10 @@ static void configure_tc(void)
 /* Main Code	                                                        */
 /************************************************************************/
 int main(void)
-{
+{	
+	pio_set_output(PORT_LED_GREEN , MASK_LED_GREEN  ,1,0,0);
+	pmc_enable_periph_clk(ID_LED_GREEN);
+	pio_clear(PORT_LED_GREEN, MASK_LED_GREEN);
 	/* Initialize the SAM system */
 	sysclk_init();
 
@@ -187,8 +249,7 @@ int main(void)
 	configure_buttons();
 
 	while (1) {
-		
 		/* Entra em modo sleep */
-		
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }
