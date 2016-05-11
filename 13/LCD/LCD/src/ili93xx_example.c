@@ -97,6 +97,9 @@ static void configure_console(void)
 	stdio_serial_init(CONF_UART, &uart_serial_options);
 }
 
+/**
+	Variáveis para o contador do display e tempo.
+*/
 static uint32_t counter = 0;
 static uint32_t tempo = 0;
 
@@ -115,6 +118,9 @@ static uint32_t tempo = 0;
 /** IRQ priority for PIO (The lower the value, the greater the priority) */
 #define IRQ_PRIOR_PIO    0
 
+/**
+	Desenha um retângulo em cima do valor anterior do contador e sobrescreve o novo valor.
+*/
 void atualiza_contador(){
 	ili93xx_set_foreground_color(COLOR_WHITE);
 	ili93xx_draw_filled_rectangle(125,100,200,170);
@@ -122,10 +128,12 @@ void atualiza_contador(){
 	char buffer[10];
 	snprintf(buffer, 10, "%d", counter);
 	ili93xx_draw_string(130, 110, (uint8_t *)buffer);
-	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
-	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
 }
 
+/**
+	Desenha um retângulo em cima do valor anterior do contador do tempo e sobrescreve o novo valor.
+	Separa o contador em minutos e segundos também.
+*/
 void atualiza_tempo(){
 	ili93xx_set_foreground_color(COLOR_WHITE);
 	ili93xx_draw_filled_rectangle(130,280,ILI93XX_LCD_WIDTH, ILI93XX_LCD_HEIGHT);
@@ -136,12 +144,11 @@ void atualiza_tempo(){
 	char buffer[10];
 	snprintf(buffer, 10, "%02d:%02d", min, seg);
 	ili93xx_draw_string(140, 300, (uint8_t *)buffer);
-	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
-	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
 }
 
 /**
  *  Handle Interrupcao botao 1
+ *  Incrementa o contador e atualiza o display.
  */
 static void Button1_Handler(uint32_t id, uint32_t mask)
 {
@@ -151,6 +158,7 @@ static void Button1_Handler(uint32_t id, uint32_t mask)
 
 /**
  *  Handle Interrupcao botao 2.
+ *  Decrementa o contador e atualiza o display.
  */
 static void Button2_Handler(uint32_t id, uint32_t mask)
 {
@@ -160,6 +168,7 @@ static void Button2_Handler(uint32_t id, uint32_t mask)
 
 /**
  *  Interrupt handler for TC0 interrupt. 
+ *  Incrementa o contador do tempo e atualiza o display.
  */
 void TC0_Handler(void)
 {
@@ -207,90 +216,31 @@ static void configure_buttons(void)
 }
 
 /**
- *  Configure Timer Counter 0 to generate an interrupt every 250ms.
+ *  Configure Timer Counter 0 to generate an interrupt every 1s.
  */
-// [main_tc_configure]
 static void configure_tc(void)
 {
 	/*
 	* Aqui atualizamos o clock da cpu que foi configurado em sysclk init
 	*
-	* O valor atual est'a em : 120_000_000 Hz (120Mhz)
+	* O valor atual está em : 120_000_000 Hz (120Mhz)
 	*/
 	uint32_t ul_sysclk = sysclk_get_cpu_hz();
 	
 	/*
 	*	Ativa o clock do periférico TC 0
-	* 
 	*/
 	pmc_enable_periph_clk(ID_TC0);
-
-	/*
-	* Configura TC para operar no modo de comparação e trigger RC
-	* devemos nos preocupar com o clock em que o TC irá operar !
-	*
-	* Cada TC possui 3 canais, escolher um para utilizar.
-	*
-	* Configurações de modo de operação :
-	*	#define TC_CMR_ABETRG (0x1u << 10) : TIOA or TIOB External Trigger Selection 
-	*	#define TC_CMR_CPCTRG (0x1u << 14) : RC Compare Trigger Enable 
-	*	#define TC_CMR_WAVE   (0x1u << 15) : Waveform Mode 
-	*
-	* Configurações de clock :
-	*	#define  TC_CMR_TCCLKS_TIMER_CLOCK1 : Clock selected: internal MCK/2 clock signal 
-	*	#define  TC_CMR_TCCLKS_TIMER_CLOCK2 : Clock selected: internal MCK/8 clock signal 
-	*	#define  TC_CMR_TCCLKS_TIMER_CLOCK3 : Clock selected: internal MCK/32 clock signal 
-	*	#define  TC_CMR_TCCLKS_TIMER_CLOCK4 : Clock selected: internal MCK/128 clock signal
-	*	#define  TC_CMR_TCCLKS_TIMER_CLOCK5 : Clock selected: internal SLCK clock signal 
-	*
-	*	MCK		= 120_000_000
-	*	SLCK	= 32_768		(rtc)
-	*
-	* Uma opção para achar o valor do divisor é utilizar a funcao
-	* tc_find_mck_divisor()
-	*/
+	
+	// Configura TC para operar no modo de comparação e trigger RC
+	
 	tc_init(TC0,0,TC_CMR_CPCTRG | TC_CMR_TCCLKS_TIMER_CLOCK5);
-	
-	/*
-	* Aqui devemos configurar o valor do RC que vai trigar o reinicio da contagem
-	* devemos levar em conta a frequência que queremos que o TC gere as interrupções
-	* e tambem a frequencia com que o TC está operando.
-	*
-	* Devemos configurar o RC para o mesmo canal escolhido anteriormente.
-	*	
-	*   ^ 
-	*	|	Contador (incrementado na frequencia escolhida do clock)
-	*   |
-	*	|	 	Interrupcao	
-	*	|------#----------- RC
-	*	|	  /
-	*	|   /
-	*	| /
-	*	|-----------------> t
-	*
-	*
-	*/
+
+	// Valor para o contador de um em um segundo.
 	tc_write_rc(TC0,0,32768);
-	
-	/*
-	* Devemos configurar o NVIC para receber interrupções do TC 
-	*/
+
 	NVIC_EnableIRQ((IRQn_Type) ID_TC0);
 	
-	/*
-	* Opções possíveis geradoras de interrupção :
-	* 
-	* Essas configurações estão definidas no head : tc.h 
-	*
-	*	#define TC_IER_COVFS (0x1u << 0)	Counter Overflow 
-	*	#define TC_IER_LOVRS (0x1u << 1)	Load Overrun 
-	*	#define TC_IER_CPAS  (0x1u << 2)	RA Compare 
-	*	#define TC_IER_CPBS  (0x1u << 3)	RB Compare 
-	*	#define TC_IER_CPCS  (0x1u << 4)	RC Compare 
-	*	#define TC_IER_LDRAS (0x1u << 5)	RA Loading 
-	*	#define TC_IER_LDRBS (0x1u << 6)	RB Loading 
-	*	#define TC_IER_ETRGS (0x1u << 7)	External Trigger 
-	*/
 	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
 	
 	tc_start(TC0, 0);
@@ -307,6 +257,7 @@ int main(void)
 	sysclk_init();
 	board_init();
 	
+	/** Configura os botões, o TC e desabilita o Watchdog Timer. */
 	configure_buttons();
 	WDT->WDT_MR = WDT_MR_WDDIS;
 	configure_tc();
@@ -358,34 +309,28 @@ int main(void)
 	ili93xx_display_on();
 	ili93xx_set_cursor_position(0, 0);
 
-	/** Draw text, image and basic shapes on the LCD */
+	/** Escreve os nomes no display. */
 	ili93xx_set_foreground_color(COLOR_BLACK);
 	ili93xx_draw_string(10, 20, (uint8_t *)"Nome: Lucas");
 	ili93xx_draw_string(10, 40, (uint8_t *)"Nome: Erica");
 	ili93xx_draw_string(10, 60, (uint8_t *)"Nome: Flavia");
 	
+	/** Desenha linha de separação */
 	ili93xx_set_foreground_color(COLOR_RED);
 	ili93xx_draw_line(0, 90, 240, 90);
 	ili93xx_draw_line(0, 95, 240, 95);
 	
+	/** Escreve contador e tempo no display. */
 	ili93xx_set_foreground_color(COLOR_BLACK);
 	ili93xx_draw_string(10, 110, (uint8_t *)"Counter:");
 	ili93xx_draw_string(10, 300, (uint8_t *)"TEMPO:");
 
+	/** Escreve valores iniciais do contador. */
 	ili93xx_draw_string(130, 110, (uint8_t *)"000");
 	ili93xx_draw_string(140, 300, (uint8_t *)"00:00");	
-/*
-	ili93xx_set_foreground_color(COLOR_RED);
-	ili93xx_draw_circle(60, 160, 40);
-	ili93xx_set_foreground_color(COLOR_GREEN);
-	ili93xx_draw_circle(120, 160, 40);
-	ili93xx_set_foreground_color(COLOR_BLUE);
-	ili93xx_draw_circle(180, 160, 40);
 
-	ili93xx_set_foreground_color(COLOR_VIOLET);
-	ili93xx_draw_line(0, 0, 240, 320);
-*/
 	while (1) {
+		// Coloca o microcontrolador em modo Sleep aguardando interrupções.
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }

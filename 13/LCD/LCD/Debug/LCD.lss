@@ -17,23 +17,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .comment      0000005b  00000000  00000000  000108b6  2**0
                   CONTENTS, READONLY
-  7 .debug_info   0000f029  00000000  00000000  00010911  2**0
+  7 .debug_info   0000f027  00000000  00000000  00010911  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00002599  00000000  00000000  0001f93a  2**0
+  8 .debug_abbrev 00002599  00000000  00000000  0001f938  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    00006a16  00000000  00000000  00021ed3  2**0
+  9 .debug_loc    00006a16  00000000  00000000  00021ed1  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_aranges 00000bb0  00000000  00000000  000288e9  2**0
+ 10 .debug_aranges 00000bb0  00000000  00000000  000288e7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000b38  00000000  00000000  00029499  2**0
+ 11 .debug_ranges 00000b38  00000000  00000000  00029497  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_macro  0001543c  00000000  00000000  00029fd1  2**0
+ 12 .debug_macro  0001543c  00000000  00000000  00029fcf  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_line   0000dff6  00000000  00000000  0003f40d  2**0
+ 13 .debug_line   0000dfee  00000000  00000000  0003f40b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    000590f1  00000000  00000000  0004d403  2**0
+ 14 .debug_str    000590f1  00000000  00000000  0004d3f9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_frame  000027f8  00000000  00000000  000a64f4  2**2
+ 15 .debug_frame  000027f8  00000000  00000000  000a64ec  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -5593,11 +5593,11 @@ static inline int usart_serial_putchar(usart_if p_usart, const uint8_t c)
   401910:	40028000 	.word	0x40028000
 
 00401914 <atualiza_contador>:
-#define PIN_PUSHBUTTON_2_ATTR	PIO_PULLUP | PIO_DEBOUNCE | PIO_IT_FALL_EDGE
-
-/** IRQ priority for PIO (The lower the value, the greater the priority) */
 #define IRQ_PRIOR_PIO    0
 
+/**
+	Desenha um retângulo em cima do valor anterior do contador e sobrescreve o novo valor.
+*/
 void atualiza_contador(){
   401914:	b530      	push	{r4, r5, lr}
   401916:	b085      	sub	sp, #20
@@ -5630,8 +5630,6 @@ void atualiza_contador(){
   401942:	aa01      	add	r2, sp, #4
   401944:	4b06      	ldr	r3, [pc, #24]	; (401960 <atualiza_contador+0x4c>)
   401946:	4798      	blx	r3
-	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
-	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
 }
   401948:	b005      	add	sp, #20
   40194a:	bd30      	pop	{r4, r5, pc}
@@ -5643,9 +5641,9 @@ void atualiza_contador(){
   401960:	00400b91 	.word	0x00400b91
 
 00401964 <Button2_Handler>:
-
 /**
  *  Handle Interrupcao botao 2.
+ *  Decrementa o contador e atualiza o display.
  */
 static void Button2_Handler(uint32_t id, uint32_t mask)
 {
@@ -5663,9 +5661,9 @@ static void Button2_Handler(uint32_t id, uint32_t mask)
   401978:	00401915 	.word	0x00401915
 
 0040197c <Button1_Handler>:
-
 /**
  *  Handle Interrupcao botao 1
+ *  Incrementa o contador e atualiza o display.
  */
 static void Button1_Handler(uint32_t id, uint32_t mask)
 {
@@ -5683,11 +5681,11 @@ static void Button1_Handler(uint32_t id, uint32_t mask)
   401990:	00401915 	.word	0x00401915
 
 00401994 <atualiza_tempo>:
-	ili93xx_draw_string(130, 110, (uint8_t *)buffer);
-	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
-	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
-}
 
+/**
+	Desenha um retângulo em cima do valor anterior do contador do tempo e sobrescreve o novo valor.
+	Separa o contador em minutos e segundos também.
+*/
 void atualiza_tempo(){
   401994:	b530      	push	{r4, r5, lr}
   401996:	b087      	sub	sp, #28
@@ -5712,7 +5710,7 @@ void atualiza_tempo(){
   4019b8:	4b0d      	ldr	r3, [pc, #52]	; (4019f0 <atualiza_tempo+0x5c>)
   4019ba:	fba3 1302 	umull	r1, r3, r3, r2
   4019be:	095b      	lsrs	r3, r3, #5
-
+*/
 void atualiza_tempo(){
 	ili93xx_set_foreground_color(COLOR_WHITE);
 	ili93xx_draw_filled_rectangle(130,280,ILI93XX_LCD_WIDTH, ILI93XX_LCD_HEIGHT);
@@ -5736,8 +5734,6 @@ void atualiza_tempo(){
   4019da:	aa03      	add	r2, sp, #12
   4019dc:	4b07      	ldr	r3, [pc, #28]	; (4019fc <atualiza_tempo+0x68>)
   4019de:	4798      	blx	r3
-	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
-	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
 }
   4019e0:	b007      	add	sp, #28
   4019e2:	bd30      	pop	{r4, r5, pc}
@@ -5750,9 +5746,9 @@ void atualiza_tempo(){
   4019fc:	00400b91 	.word	0x00400b91
 
 00401a00 <TC0_Handler>:
-
 /**
  *  Interrupt handler for TC0 interrupt. 
+ *  Incrementa o contador do tempo e atualiza o display.
  */
 void TC0_Handler(void)
 {
@@ -5891,28 +5887,26 @@ __STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
   401ab6:	6033      	str	r3, [r6, #0]
   401ab8:	f44f 5300 	mov.w	r3, #8192	; 0x2000
   401abc:	6033      	str	r3, [r6, #0]
-{
 	sysclk_init();
 	board_init();
 	
+	/** Configura os botões, o TC e desabilita o Watchdog Timer. */
 	configure_buttons();
 	WDT->WDT_MR = WDT_MR_WDDIS;
   401abe:	f44f 4800 	mov.w	r8, #32768	; 0x8000
   401ac2:	4b64      	ldr	r3, [pc, #400]	; (401c54 <main+0x220>)
   401ac4:	f8c3 8004 	str.w	r8, [r3, #4]
+	uint32_t ul_sysclk = sysclk_get_cpu_hz();
 	
 	/*
 	*	Ativa o clock do periférico TC 0
-	* 
 	*/
 	pmc_enable_periph_clk(ID_TC0);
   401ac8:	2017      	movs	r0, #23
   401aca:	47a8      	blx	r5
-	*	SLCK	= 32_768		(rtc)
-	*
-	* Uma opção para achar o valor do divisor é utilizar a funcao
-	* tc_find_mck_divisor()
-	*/
+	
+	// Configura TC para operar no modo de comparação e trigger RC
+	
 	tc_init(TC0,0,TC_CMR_CPCTRG | TC_CMR_TCCLKS_TIMER_CLOCK5);
   401acc:	4f62      	ldr	r7, [pc, #392]	; (401c58 <main+0x224>)
   401ace:	4638      	mov	r0, r7
@@ -5920,11 +5914,8 @@ __STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
   401ad2:	f244 0204 	movw	r2, #16388	; 0x4004
   401ad6:	4b61      	ldr	r3, [pc, #388]	; (401c5c <main+0x228>)
   401ad8:	4798      	blx	r3
-	*	| /
-	*	|-----------------> t
-	*
-	*
-	*/
+
+	// Valor para o contador de um em um segundo.
 	tc_write_rc(TC0,0,32768);
   401ada:	4638      	mov	r0, r7
   401adc:	4621      	mov	r1, r4
@@ -5933,11 +5924,9 @@ __STATIC_INLINE void NVIC_EnableIRQ(IRQn_Type IRQn)
   401ae2:	4798      	blx	r3
   401ae4:	f44f 0300 	mov.w	r3, #8388608	; 0x800000
   401ae8:	6033      	str	r3, [r6, #0]
-	*	#define TC_IER_CPCS  (0x1u << 4)	RC Compare 
-	*	#define TC_IER_LDRAS (0x1u << 5)	RA Loading 
-	*	#define TC_IER_LDRBS (0x1u << 6)	RB Loading 
-	*	#define TC_IER_ETRGS (0x1u << 7)	External Trigger 
-	*/
+
+	NVIC_EnableIRQ((IRQn_Type) ID_TC0);
+	
 	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
   401aea:	4638      	mov	r0, r7
   401aec:	4621      	mov	r1, r4
@@ -6113,7 +6102,7 @@ static inline void usart_serial_init(usart_if p_usart,
   401bb2:	4b46      	ldr	r3, [pc, #280]	; (401ccc <main+0x298>)
   401bb4:	4798      	blx	r3
 
-	/** Draw text, image and basic shapes on the LCD */
+	/** Escreve os nomes no display. */
 	ili93xx_set_foreground_color(COLOR_BLACK);
   401bb6:	4620      	mov	r0, r4
   401bb8:	47b0      	blx	r6
@@ -6134,6 +6123,7 @@ static inline void usart_serial_init(usart_if p_usart,
   401bd0:	4a42      	ldr	r2, [pc, #264]	; (401cdc <main+0x2a8>)
   401bd2:	47a8      	blx	r5
 	
+	/** Desenha linha de separação */
 	ili93xx_set_foreground_color(COLOR_RED);
   401bd4:	f44f 007f 	mov.w	r0, #16711680	; 0xff0000
   401bd8:	47b0      	blx	r6
@@ -6151,6 +6141,7 @@ static inline void usart_serial_init(usart_if p_usart,
   401bee:	460b      	mov	r3, r1
   401bf0:	47c0      	blx	r8
 	
+	/** Escreve contador e tempo no display. */
 	ili93xx_set_foreground_color(COLOR_BLACK);
   401bf2:	4620      	mov	r0, r4
   401bf4:	47b0      	blx	r6
@@ -6165,6 +6156,7 @@ static inline void usart_serial_init(usart_if p_usart,
   401c04:	4a37      	ldr	r2, [pc, #220]	; (401ce4 <main+0x2b0>)
   401c06:	47a8      	blx	r5
 
+	/** Escreve valores iniciais do contador. */
 	ili93xx_draw_string(130, 110, (uint8_t *)"000");
   401c08:	2082      	movs	r0, #130	; 0x82
   401c0a:	216e      	movs	r1, #110	; 0x6e
@@ -6176,10 +6168,8 @@ static inline void usart_serial_init(usart_if p_usart,
   401c16:	4a35      	ldr	r2, [pc, #212]	; (401cec <main+0x2b8>)
   401c18:	47a8      	blx	r5
 
-	ili93xx_set_foreground_color(COLOR_VIOLET);
-	ili93xx_draw_line(0, 0, 240, 320);
-*/
 	while (1) {
+		// Coloca o microcontrolador em modo Sleep aguardando interrupções.
 		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
   401c1a:	2502      	movs	r5, #2
   401c1c:	4c34      	ldr	r4, [pc, #208]	; (401cf0 <main+0x2bc>)

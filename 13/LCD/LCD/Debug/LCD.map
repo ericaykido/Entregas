@@ -6078,7 +6078,7 @@ OUTPUT(LCD.elf elf32-littlearm)
  .comment       0x00000000       0x5c src/ASF/sam/utils/syscalls/gcc/syscalls.o
  .comment       0x00000000       0x5c src/ili93xx_example.o
 
-.debug_info     0x00000000     0xf029
+.debug_info     0x00000000     0xf027
  .debug_info    0x00000000      0x933 src/ASF/sam/drivers/tc/tc.o
  .debug_info    0x00000933      0x736 src/ASF/common/services/clock/sam4s/sysclk.o
  .debug_info    0x00001069      0x1e8 src/ASF/common/utils/interrupt/interrupt_sam_nvic.o
@@ -6097,7 +6097,7 @@ OUTPUT(LCD.elf elf32-littlearm)
  .debug_info    0x0000ba53      0x68d src/ASF/sam/utils/cmsis/sam4s/source/templates/gcc/startup_sam4s.o
  .debug_info    0x0000c0e0      0x469 src/ASF/sam/utils/cmsis/sam4s/source/templates/system_sam4s.o
  .debug_info    0x0000c549      0x43f src/ASF/sam/utils/syscalls/gcc/syscalls.o
- .debug_info    0x0000c988     0x26a1 src/ili93xx_example.o
+ .debug_info    0x0000c988     0x269f src/ili93xx_example.o
 
 .debug_abbrev   0x00000000     0x2599
  .debug_abbrev  0x00000000      0x1ca src/ASF/sam/drivers/tc/tc.o
@@ -6358,7 +6358,7 @@ OUTPUT(LCD.elf elf32-littlearm)
  .debug_macro   0x00014dc2      0x66a src/ili93xx_example.o
  .debug_macro   0x0001542c       0x10 src/ili93xx_example.o
 
-.debug_line     0x00000000     0xdff6
+.debug_line     0x00000000     0xdfee
  .debug_line    0x00000000      0xbca src/ASF/sam/drivers/tc/tc.o
  .debug_line    0x00000bca      0xb5d src/ASF/common/services/clock/sam4s/sysclk.o
  .debug_line    0x00001727      0xa45 src/ASF/common/utils/interrupt/interrupt_sam_nvic.o
@@ -6377,7 +6377,7 @@ OUTPUT(LCD.elf elf32-littlearm)
  .debug_line    0x0000bb99      0x87d src/ASF/sam/utils/cmsis/sam4s/source/templates/gcc/startup_sam4s.o
  .debug_line    0x0000c416      0x897 src/ASF/sam/utils/cmsis/sam4s/source/templates/system_sam4s.o
  .debug_line    0x0000ccad      0x399 src/ASF/sam/utils/syscalls/gcc/syscalls.o
- .debug_line    0x0000d046      0xfb0 src/ili93xx_example.o
+ .debug_line    0x0000d046      0xfa8 src/ili93xx_example.o
 
 .debug_str      0x00000000    0x590f1
  .debug_str     0x00000000    0x49c27 src/ASF/sam/drivers/tc/tc.o
