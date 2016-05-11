@@ -80,6 +80,8 @@
 
 struct ili93xx_opt_t g_ili93xx_display_opt;
 
+//uint8_t cnt[] = {0x30,0x31,0x32,0x00};
+
 /**
  *  Configure UART console.
  */
@@ -94,6 +96,9 @@ static void configure_console(void)
 	sysclk_enable_peripheral_clock(CONSOLE_UART_ID);
 	stdio_serial_init(CONF_UART, &uart_serial_options);
 }
+
+static uint32_t counter = 0;
+static uint32_t tempo = 0;
 
 #define PIN_PUSHBUTTON_1_MASK	PIO_PB3
 #define PIN_PUSHBUTTON_1_PIO	PIOB
@@ -110,13 +115,38 @@ static void configure_console(void)
 /** IRQ priority for PIO (The lower the value, the greater the priority) */
 #define IRQ_PRIOR_PIO    0
 
+void atualiza_contador(){
+	ili93xx_set_foreground_color(COLOR_WHITE);
+	ili93xx_draw_filled_rectangle(125,100,200,170);
+	ili93xx_set_foreground_color(COLOR_BLACK);
+	char buffer[10];
+	snprintf(buffer, 10, "%d", counter);
+	ili93xx_draw_string(130, 110, (uint8_t *)buffer);
+	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
+	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
+}
+
+void atualiza_tempo(){
+	ili93xx_set_foreground_color(COLOR_WHITE);
+	ili93xx_draw_filled_rectangle(130,280,ILI93XX_LCD_WIDTH, ILI93XX_LCD_HEIGHT);
+	ili93xx_set_foreground_color(COLOR_BLACK);
+	int seg = tempo % 60;
+	int min = tempo / 60;
+	
+	char buffer[10];
+	snprintf(buffer, 10, "%02d:%02d", min, seg);
+	ili93xx_draw_string(140, 300, (uint8_t *)buffer);
+	//ili93xx_draw_string(130, 110, (uint8_t *)"000");
+	//ili93xx_draw_string(140, 300, (uint8_t *)"00:00:00");
+}
 
 /**
  *  Handle Interrupcao botao 1
  */
 static void Button1_Handler(uint32_t id, uint32_t mask)
 {
-	
+	counter++;
+	atualiza_contador();
 }
 
 /**
@@ -124,7 +154,8 @@ static void Button1_Handler(uint32_t id, uint32_t mask)
  */
 static void Button2_Handler(uint32_t id, uint32_t mask)
 {
-	
+	counter--;
+	atualiza_contador();
 }
 
 /**
@@ -135,12 +166,14 @@ void TC0_Handler(void)
 	volatile uint32_t ul_dummy;
 
 	/* Clear status bit to acknowledge interrupt */
-	//ul_dummy = tc_get_status(TC0,0);
+	ul_dummy = tc_get_status(TC0,0);
+	
 
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
-
 	
+	tempo++;
+	atualiza_tempo();
 }
 
 /**
@@ -237,7 +270,7 @@ static void configure_tc(void)
 	*
 	*
 	*/
-	//tc_write_rc(TC0,0,8192);
+	tc_write_rc(TC0,0,32768);
 	
 	/*
 	* Devemos configurar o NVIC para receber interrupções do TC 
@@ -258,9 +291,9 @@ static void configure_tc(void)
 	*	#define TC_IER_LDRBS (0x1u << 6)	RB Loading 
 	*	#define TC_IER_ETRGS (0x1u << 7)	External Trigger 
 	*/
-	//tc_enable_interrupt(TC0,0,TC_IER_CPCS);
+	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
 	
-	//tc_start(TC0, 0);
+	tc_start(TC0, 0);
 }
 
 
@@ -273,6 +306,10 @@ int main(void)
 {
 	sysclk_init();
 	board_init();
+	
+	configure_buttons();
+	WDT->WDT_MR = WDT_MR_WDDIS;
+	configure_tc();
 
 	/** Initialize debug console */
 	configure_console();
@@ -332,9 +369,11 @@ int main(void)
 	ili93xx_draw_line(0, 95, 240, 95);
 	
 	ili93xx_set_foreground_color(COLOR_BLACK);
-	ili93xx_draw_string(10, 110, (uint8_t *)"Counter:      ____");
-	ili93xx_draw_string(100, 300, (uint8_t *)"TEMPO: ____");
+	ili93xx_draw_string(10, 110, (uint8_t *)"Counter:");
+	ili93xx_draw_string(10, 300, (uint8_t *)"TEMPO:");
 
+	ili93xx_draw_string(130, 110, (uint8_t *)"000");
+	ili93xx_draw_string(140, 300, (uint8_t *)"00:00");	
 /*
 	ili93xx_set_foreground_color(COLOR_RED);
 	ili93xx_draw_circle(60, 160, 40);
@@ -347,6 +386,7 @@ int main(void)
 	ili93xx_draw_line(0, 0, 240, 320);
 */
 	while (1) {
+		pmc_sleep(SAM_PM_SMODE_SLEEP_WFI);
 	}
 }
 
