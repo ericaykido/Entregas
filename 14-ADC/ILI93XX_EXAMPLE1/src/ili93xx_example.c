@@ -3,7 +3,7 @@
 #include "conf_board.h"
 #include "conf_clock.h"
 #include "smc.h"
-
+#include <math.h>
 /************************************************************************/
 /* ADC                                                                     */
 /************************************************************************/
@@ -23,7 +23,7 @@
 #define MAX_DIGITAL     (4095)
 
 /* Redefinir isso */
-#define ADC_POT_CHANNEL 1
+#define ADC_POT_CHANNEL 0
 
 /************************************************************************/
 /* LCD                                                                  */
@@ -32,6 +32,19 @@
 #define ILI93XX_LCD_CS      1
 
 struct ili93xx_opt_t g_ili93xx_display_opt;
+
+void atualiza_lcd(double valor){
+	ili93xx_set_foreground_color(COLOR_BLACK);
+	ili93xx_draw_circle(ILI93XX_LCD_WIDTH/2, ILI93XX_LCD_HEIGHT/2, 40);
+	double angulo = valor * M_PI;
+	double x, y;
+	x = ILI93XX_LCD_WIDTH/2 - cos(angulo)*40;
+	y = ILI93XX_LCD_HEIGHT/2 - sin(angulo)*40;
+	ili93xx_draw_line(ILI93XX_LCD_WIDTH/2, ILI93XX_LCD_HEIGHT/2, x, y);
+	char buffer[10];
+	snprintf(buffer, 10, "%f", angulo);
+	ili93xx_draw_string(130, 110, (uint8_t *)buffer);
+}
 
 /************************************************************************/
 /* prototype                                                            */
@@ -125,10 +138,10 @@ void configure_ADC(void){
 	/*
 	* Checa se configuração 
 	*/
-	adc_check(ADC, sysclk_get_cpu_hz());
+	//adc_check(ADC, sysclk_get_cpu_hz());
 
 	/* Enable channel for potentiometer. */
-	adc_enable_channel(ADC, ADC_TEMPERATURE_SENSOR);
+	adc_enable_channel(ADC, ADC_POT_CHANNEL);
 
 	/* Enable ADC interrupt. */
 	NVIC_EnableIRQ(ADC_IRQn);
@@ -137,7 +150,38 @@ void configure_ADC(void){
 	adc_start(ADC);
 
 	/* Enable PDC channel interrupt. */
-	adc_enable_interrupt(ADC, ADC_ISR_RXBUFF);
+	//adc_enable_interrupt(ADC, ADC_ISR_RXBUFF);
+}
+
+/**
+ *  Configure Timer Counter 0 to generate an interrupt every 1s.
+ */
+static void configure_tc(void)
+{
+	/*
+	* Aqui atualizamos o clock da cpu que foi configurado em sysclk init
+	*
+	* O valor atual está em : 120_000_000 Hz (120Mhz)
+	*/
+	uint32_t ul_sysclk = sysclk_get_cpu_hz();
+	
+	/*
+	*	Ativa o clock do periférico TC 0
+	*/
+	pmc_enable_periph_clk(ID_TC0);
+	
+	// Configura TC para operar no modo de comparação e trigger RC
+	
+	tc_init(TC0,0,TC_CMR_CPCTRG | TC_CMR_TCCLKS_TIMER_CLOCK5);
+
+	// Valor para o contador de um em um segundo.
+	tc_write_rc(TC0,0,32768);
+
+	NVIC_EnableIRQ((IRQn_Type) ID_TC0);
+	
+	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
+	
+	tc_start(TC0, 0);
 }
 
 
@@ -150,6 +194,15 @@ void configure_ADC(void){
  */
 void TC0_Handler(void)
 {
+	volatile uint32_t ul_dummy;
+
+	/* Clear status bit to acknowledge interrupt */
+	ul_dummy = tc_get_status(TC0,0);
+	
+
+	/* Avoid compiler warning */
+	UNUSED(ul_dummy);
+	
 	if (adc_get_status(ADC) & (1 << ADC_POT_CHANNEL)) {
 		adc_start(ADC);
 	}
@@ -161,15 +214,11 @@ void TC0_Handler(void)
  */
 void ADC_Handler(void)
 {
-	uint32_t ul_counter;
-	int32_t l_vol;
-	float f_temp;
-	uint32_t ul_value = 0;
-	uint32_t ul_temp_value = 0;
+	uint32_t resistencia;
 
 	if ((adc_get_status(ADC) & ADC_ISR_RXBUFF) == ADC_ISR_RXBUFF) {
 
-		adc_get_channel_value(ADC, ADC_POT_CHANNEL);
+		resistencia = adc_get_channel_value(ADC, ADC_POT_CHANNEL);
 	}
 }
 
@@ -186,8 +235,8 @@ int main(void)
 
 	configure_LCD();
 	configure_ADC();
-
-	
+	configure_tc();
+	atualiza_lcd(0.8);
 	while (1) {
 	}
 }
