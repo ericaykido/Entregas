@@ -249,7 +249,7 @@ void ADC_Handler(void)
 	/* Checa se a interrupção é devido ao canal 5 */
 	if ((status & ADC_ISR_EOC5)) {
 		resistencia = adc_get_channel_value(ADC, ADC_POT_CHANNEL);
-		if (resistencia != adc_value_old)
+		if ((resistencia > adc_value_old + 2) || (resistencia < adc_value_old - 2))
 		{
 			atualiza_lcd(resistencia);
 		}
