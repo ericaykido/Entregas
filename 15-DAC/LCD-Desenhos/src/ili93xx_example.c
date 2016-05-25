@@ -49,15 +49,51 @@ struct ili93xx_opt_t g_ili93xx_display_opt;
 
 /**
 *  Interrupt handler for TC0 interrupt.
-*/
+*/static void configure_tc(void)
+{
+	/*
+	* Aqui atualizamos o clock da cpu que foi configurado em sysclk init
+	*
+	* O valor atual está em : 120_000_000 Hz (120Mhz)
+	*/
+	uint32_t ul_sysclk = sysclk_get_cpu_hz();
+	
+	/*
+	*	Ativa o clock do periférico TC 0
+	*/
+	pmc_enable_periph_clk(ID_TC0);
+	
+	// Configura TC para operar no modo de comparação e trigger RC
+	
+	tc_init(TC0,0,TC_CMR_CPCTRG | TC_CMR_TCCLKS_TIMER_CLOCK5);
+
+	// Valor para o contador de um em um segundo.
+	uint32_t tempo = 32768 * 0.01;
+	tc_write_rc(TC0,0,tempo);
+
+	NVIC_EnableIRQ((IRQn_Type) ID_TC0);
+	
+	tc_enable_interrupt(TC0,0,TC_IER_CPCS);
+	
+	tc_start(TC0, 0);
+}
 void TC0_Handler(void){
 	volatile uint32_t ul_dummy, status;
-	uint32_t valorDAC = 1024;
+	static uint32_t valorDAC = 4095;		valorDAC |= 1<<12;
+	//valorDAC++;
+
 	ul_dummy = tc_get_status(TC0,0);
 	UNUSED(ul_dummy);		/************************************************************************/
 	/* Escreve um novo valor no DAC                                         */
 	/************************************************************************/	status = dacc_get_interrupt_status(DACC_BASE);
 	dacc_write_conversion_data(DACC_BASE, valorDAC);
+}
+
+uint32_t prox_ponto(){
+	uint32_t amplitude;
+	uint32_t frequencia;
+	
+
 }
 
 void configure_LCD(void){
@@ -138,13 +174,24 @@ int main(void)
 	/* Half word transfer mode */
 	dacc_set_transfer_mode(DACC_BASE, 0);
 
+	dacc_set_timing(DACC_BASE, 0x08, 0, 0x10);
+
+	/* Disable TAG and select output channel DACC_CHANNEL */
+	dacc_set_channel_selection(DACC_BASE, DACC_CHANNEL);
+
 	/* Enable output channel DACC_CHANNEL */
 	dacc_enable_channel(DACC_BASE, DACC_CHANNEL);
 
 	/* Set up analog current */
 	dacc_set_analog_control(DACC_BASE, DACC_ANALOG_CONTROL);
 
+	//configure_tc();
+	
+	int status;
+	
 	while (1) {
+		status = dacc_get_interrupt_status(DACC_BASE);
+		dacc_write_conversion_data(DACC_BASE, 4095/4);
 	}
 }
 
