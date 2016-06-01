@@ -62,6 +62,9 @@
 // From module: DACC - Digital-to-Analog Converter
 #include <dacc.h>
 
+// From module: Delay routines
+#include <delay.h>
+
 // From module: Display - AAT31XX Backlight Controller
 #include <aat31xx.h>
 

@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\ASF\common\services\delay\sam\cycle_counter.c
+
 src\ASF\sam\drivers\adc\adc.c
 
 src\ASF\sam\drivers\adc\adc_sam3u.c
