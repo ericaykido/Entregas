@@ -169,6 +169,7 @@ void ADC_Handler(void)
 				atualiza_amp(amplitude);
 			} else {
 				frequencia = tempValue;
+				tc_stop(TC0,0);
 				configure_tc((frequencia*32768/2000)/4095);
 				atualiza_freq(frequencia);
 			}
