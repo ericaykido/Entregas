@@ -1,6 +1,19 @@
 Aula 19
 
-BaudRate 11520 bits/s
+BaudRate 11520 bits/s 
 Paridade Par
 Stopbit 1
 Pino PAIO
+
+Período do bit 8,68.10^-6s
+
+Osciloscópio
+0001000100110001101010
+
+0 00100010 0 1 
+1 00011010 1 0
+
+Startbit 0
+00100010
+even 0
+Stopbit 1
