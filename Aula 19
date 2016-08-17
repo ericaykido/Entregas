@@ -1,1 +1,6 @@
 Aula 19
+
+BaudRate 11520 bits/s
+Paridade Par
+Stopbit 1
+Pino PAIO
