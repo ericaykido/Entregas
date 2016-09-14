@@ -1,0 +1,23 @@
+Aula 19
+
+BaudRate 11520 bits/s 
+Startbit 0
+Paridade Par
+Stopbit 1
+Pino PAIO
+
+Período do bit 8,68.10^-6s
+
+Osciloscópio
+0001000100100011010101
+
+0 0010 0010 0 1 
+0 0011 0101 0 1
+
+Primeiro Byte:
+Dado: 34
+Paridade: 0
+
+Segundo Byte:
+Dado: 44
+Paridade: 0
