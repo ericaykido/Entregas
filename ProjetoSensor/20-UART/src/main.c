@@ -43,6 +43,7 @@
 #define PORT_LED_BLUE	PIOA
 #define PORT_LED_GREEN	PIOA
 #define PORT_LED_RED	PIOC
+#define PORT_TRIGGER		PIOA
 
 
 /**
@@ -51,6 +52,7 @@
 #define ID_LED_BLUE		ID_PIOA
 #define ID_LED_GREEN	ID_PIOA
 #define ID_LED_RED		ID_PIOC
+#define ID_SENSOR		ID_PIOA
 
 /**
  *	Define as masks utilziadas
@@ -58,8 +60,29 @@
 #define MASK_LED_BLUE	(1u << PIN_LED_BLUE)
 #define MASK_LED_GREEN	(1u << PIN_LED_GREEN)
 #define MASK_LED_RED	(1u << PIN_LED_RED)
+#define MASK_TRIGGER	(1u << PIN_TRIGGER)
+#define MASK_ECHO		(1u << PIN_ECHO)
 
-void TC0_Handler(Pio port, uint32_t mask)
+//void TC0_Handler(Pio* port, uint32_t mask)
+//{
+	//volatile uint32_t ul_dummy;
+//
+	///* Clear status bit to acknowledge interrupt */
+	//ul_dummy = tc_get_status(TC0,0);
+//
+	///* Avoid compiler warning */
+	//UNUSED(ul_dummy);
+//
+	///** Muda o estado do LED */
+	//if (pio_get_output_data_status(port, mask) == 0) {
+		//pio_set(port, mask);
+		//} else {
+		//pio_clear(port, mask);
+	//}
+	//
+//}
+
+void TC0_Handler(void)
 {
 	volatile uint32_t ul_dummy;
 
@@ -68,14 +91,6 @@ void TC0_Handler(Pio port, uint32_t mask)
 
 	/* Avoid compiler warning */
 	UNUSED(ul_dummy);
-
-	/** Muda o estado do LED */
-	if (pio_get_output_data_status(port, mask) == 0) {
-		pio_set(port, mask);
-		} else {
-		pio_clear(port, mask);
-	}
-	
 }
 
 static void configure_tc(void)
@@ -224,17 +239,17 @@ int main(void)
 	pio_set_output(PORT_LED_RED  , MASK_LED_RED	,1,0,1);
 	
 
-	/* Initialize debug console */
-	config_uart();
-	
-	/* frase de boas vindas */
-	puts(" ---------------------------- \n\r"
-	 	 " Bem vindo terraquio !		\n\r"
-		 " ---------------------------- \n\r");
-		 
-	/* display main menu */
-	display_menu();
-	
+	///* Initialize debug console */
+	//config_uart();
+	//
+	///* frase de boas vindas */
+	//puts(" ---------------------------- \n\r"
+	 	 //" Bem vindo terraquio !		\n\r"
+		 //" ---------------------------- \n\r");
+		 //
+	///* display main menu */
+	//display_menu();
+
 	/**
 	* Inicializando o clock do uP
 	*/
@@ -252,50 +267,62 @@ int main(void)
 	pmc_enable_periph_clk(ID_LED_GREEN);
 	pmc_enable_periph_clk(ID_LED_RED);
 	
+	pmc_enable_periph_clk(ID_SENSOR);
 	
+	/**
+	* Configura ECHO e trigger como saída e entrada
+	*/
+	pio_set_output(PORT_TRIGGER  , MASK_TRIGGER	,1,0,0);
+	pio_set_input(PORT_TRIGGER  , MASK_ECHO, PIO_DEBOUNCE);
 
+
+	
 	while (1) {
-			
-	usart_serial_getchar((Usart *)CONSOLE_UART, &uc_key);
-
-		switch (uc_key) {
-			case '1':
-				display_menu();
-				break;
-			case '2':
-				pio_clear(PORT_LED_BLUE, MASK_LED_BLUE);
-				puts("Led ON \n\r");
-				configure_tc();
-				TC0_Handler(PORT_LED_BLUE, MASK_LED_BLUE);
-				break;
-			case '3' :
-				pio_set(PORT_LED_BLUE, MASK_LED_BLUE);
-				puts("Led OFF \n\r");
-	
-				break;
-			case '4' :
-				pio_clear(PORT_LED_GREEN, MASK_LED_GREEN);
-				puts("Led ON \n\r");
-				configure_tc();
-				//TC0_Handler_green();
-			    break;
-			case '5' :
-				pio_set(PORT_LED_GREEN, MASK_LED_GREEN);
-				puts("Led OFF \n\r");
-				break;
-			case '6' :
-				pio_set(PORT_LED_RED, MASK_LED_RED);
-				puts("Led OFF \n\r");
-				configure_tc();
-				//TC0_Handler_red();
-				break;
-			case '7' :
-				pio_clear(PORT_LED_RED, MASK_LED_RED);
-				puts("Led ON \n\r");
-				
-				break;
-			default:
-				printf("Opcao nao definida: %d \n\r", uc_key);
-		}	
+				pio_clear(PORT_TRIGGER, MASK_TRIGGER);
+				delay_ms(500);
+				pio_set(PORT_TRIGGER, MASK_TRIGGER);
+				delay_us(10);
+				pio_clear(PORT_TRIGGER, MASK_TRIGGER);
+	//usart_serial_getchar((Usart *)CONSOLE_UART, &uc_key);
+//
+		//switch (uc_key) {
+			//case '1':
+				//display_menu();
+				//break;
+			//case '2':
+				//pio_clear(PORT_LED_BLUE, MASK_LED_BLUE);
+				//puts("Led ON \n\r");
+				//configure_tc();
+				//TC0_Handler(PORT_LED_BLUE, MASK_LED_BLUE);
+				//break;
+			//case '3' :
+				//pio_set(PORT_LED_BLUE, MASK_LED_BLUE);
+				//puts("Led OFF \n\r");
+	//
+				//break;
+			//case '4' :
+				//pio_clear(PORT_LED_GREEN, MASK_LED_GREEN);
+				//puts("Led ON \n\r");
+				//configure_tc();
+				////TC0_Handler_green();
+			    //break;
+			//case '5' :
+				//pio_set(PORT_LED_GREEN, MASK_LED_GREEN);
+				//puts("Led OFF \n\r");
+				//break;
+			//case '6' :
+				//pio_set(PORT_LED_RED, MASK_LED_RED);
+				//puts("Led OFF \n\r");
+				//configure_tc();
+				////TC0_Handler_red();
+				//break;
+			//case '7' :
+				//pio_clear(PORT_LED_RED, MASK_LED_RED);
+				//puts("Led ON \n\r");
+				//
+				//break;
+			//default:
+				//printf("Opcao nao definida: %d \n\r", uc_key);
+		//}	
 	}
 }
